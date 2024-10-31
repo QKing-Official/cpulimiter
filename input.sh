@@ -8,7 +8,8 @@ read_cpu_cores() {
 
         # Validate input: check if it's a positive integer
         if [[ "$total_cores" =~ ^[1-9][0-9]*$ ]]; then
-            echo "You have entered: $total_cores CPU cores." > /tmp/cpu_cores.txt
+            echo "$total_cores" > /tmp/cpu_cores.txt  # Save the input correctly
+            echo "You have entered: $total_cores CPU cores."
             break
         else
             echo "Invalid input. Please enter a valid positive integer for CPU cores."
