@@ -55,3 +55,4 @@ systemctl enable cpu-limiter.service
 systemctl start cpu-limiter.service
 
 echo "CPU limiter installation complete. CPU usage is now limited to $cpu_limit_percentage% of total CPU capacity and will stay active."
+echo "Made by QKing"
