@@ -10,17 +10,23 @@ fi
 echo "Installing required packages..."
 apt update && apt install -y cgroup-tools sysstat
 
-# Prompt user for the number of CPU cores
-while true; do
-    read -p "Please enter the total number of CPU cores on your VPS (e.g., 2, 4, 8): " total_cores
+# Function to read the number of CPU cores
+read_cpu_cores() {
+    while true; do
+        echo -n "Please enter the total number of CPU cores on your VPS (e.g., 2, 4, 8): "
+        read total_cores
 
-    # Validate input: check if it's a positive integer
-    if [[ "$total_cores" =~ ^[1-9][0-9]*$ ]]; then
-        break
-    else
-        echo "Invalid input. Please enter a valid positive integer for CPU cores."
-    fi
-done
+        # Validate input: check if it's a positive integer
+        if [[ "$total_cores" =~ ^[1-9][0-9]*$ ]]; then
+            break
+        else
+            echo "Invalid input. Please enter a valid positive integer for CPU cores."
+        fi
+    done
+}
+
+# Call the function to read CPU cores
+read_cpu_cores
 
 # Calculate CPU limit (90% of total CPU capacity)
 cpu_limit_percentage=90
@@ -55,4 +61,3 @@ systemctl enable cpu-limiter.service
 systemctl start cpu-limiter.service
 
 echo "CPU limiter installation complete. CPU usage is now limited to $cpu_limit_percentage% of total CPU capacity and will stay active."
-echo "Made by QKing"
