@@ -11,17 +11,20 @@ echo "Installing required packages..."
 apt update && apt install -y cgroup-tools sysstat
 
 # Prompt user for the number of CPU cores
-read -p "Please enter the total number of CPU cores on your VPS: " total_cores
+while true; do
+    read -p "Please enter the total number of CPU cores on your VPS (e.g., 2, 4, 8): " total_cores
 
-# Validate input
-if ! [[ "$total_cores" =~ ^[0-9]+$ ]]; then
-    echo "Invalid input. Please enter a valid number for CPU cores."
-    exit 1
-fi
+    # Validate input: check if it's a positive integer
+    if [[ "$total_cores" =~ ^[1-9][0-9]*$ ]]; then
+        break
+    else
+        echo "Invalid input. Please enter a valid positive integer for CPU cores."
+    fi
+done
 
 # Calculate CPU limit (90% of total CPU capacity)
 cpu_limit_percentage=90
-cpu_limit=$(( total_cores * cpu_limit_percentage ))
+cpu_limit=$(( total_cores * cpu_limit_percentage / 100 ))
 
 # Set up cgroup for CPU limiting
 echo "Configuring CPU limit to $cpu_limit_percentage%..."
