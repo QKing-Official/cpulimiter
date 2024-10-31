@@ -32,6 +32,7 @@ if [ ! -d /sys/fs/cgroup/cpu/cpulimited ]; then
     exit 1
 fi
 
+# Write CPU limits
 echo $((cpu_limit * 1000)) | sudo tee /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_quota_us > /dev/null
 echo 100000 | sudo tee /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_period_us > /dev/null
 
