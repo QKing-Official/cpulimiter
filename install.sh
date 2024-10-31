@@ -25,6 +25,13 @@ cpu_limit=$(( total_cores * cpu_limit_percentage ))
 # Set up cgroup for CPU limiting
 echo "Configuring CPU limit to $cpu_limit_percentage%..."
 sudo cgcreate -g cpu:/cpulimited
+
+# Verify the cgroup was created successfully
+if [ ! -d /sys/fs/cgroup/cpu/cpulimited ]; then
+    echo "Failed to create cgroup. Exiting."
+    exit 1
+fi
+
 echo $((cpu_limit * 1000)) | sudo tee /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_quota_us > /dev/null
 echo 100000 | sudo tee /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_period_us > /dev/null
 
@@ -50,4 +57,4 @@ systemctl daemon-reload
 systemctl enable cpu-limiter.service
 systemctl start cpu-limiter.service
 
-echo "CPU limiter installation complete. CPU usage is now limited to $cpu_limit_percentage% of total CPU capacity and will stay active."
+echo "CPU limiter installation complete. CPU usage is now limited to $cpu_limit_percentage% of total CPU."
