@@ -23,17 +23,17 @@ sudo cgcreate -g cpu:/cpulimited
 echo $((cpu_limit * 1000)) | sudo tee /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_quota_us > /dev/null
 echo 100000 | sudo tee /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_period_us > /dev/null
 
-# Create a systemd service to apply the CPU limit on boot
-echo "Creating systemd service to enforce CPU limit on boot..."
+# Create a systemd service to keep the CPU limit enforced
+echo "Creating systemd service to keep CPU limit active..."
 
 sudo bash -c 'cat <<EOF > /etc/systemd/system/cpu-limiter.service
 [Unit]
 Description=CPU Limiter to cap CPU usage to '"$cpu_limit_percentage"'%
 
 [Service]
-Type=oneshot
-ExecStart=/bin/bash -c "echo '"$((cpu_limit * 1000))"' > /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_quota_us; echo 100000 > /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_period_us; for pid in \$(pgrep -x .); do cgclassify -g cpu:cpulimited \$pid; done"
-RemainAfterExit=true
+Type=simple
+ExecStart=/bin/bash -c "while true; do echo '"$((cpu_limit * 1000))"' > /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_quota_us; echo 100000 > /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_period_us; sleep 60; done"
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
@@ -44,4 +44,4 @@ systemctl daemon-reload
 systemctl enable cpu-limiter.service
 systemctl start cpu-limiter.service
 
-echo "CPU limiter installation complete. CPU usage is now limited to $cpu_limit_percentage% of total CPU capacity."
+echo "CPU limiter installation complete. CPU usage is now limited to $cpu_limit_percentage% of total CPU capacity and will stay active."
