@@ -6,25 +6,22 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# Install required packages
-echo "Installing required packages..."
-apt update && apt install -y cgroup-tools sysstat
+# Check if the input file exists
+if [ ! -f /tmp/cpu_cores.txt ]; then
+    echo "Error: /tmp/cpu_cores.txt not found. Please run the input script first."
+    exit 1
+fi
 
-# Prompt user for the number of CPU cores
-while true; do
-    read -p "Please enter the total number of CPU cores on your VPS (e.g., 2, 4, 8): " total_cores
-
-    # Validate input: check if it's a positive integer
-    if [[ "$total_cores" =~ ^[1-9][0-9]*$ ]]; then
-        break
-    else
-        echo "Invalid input. Please enter a valid positive integer for CPU cores."
-    fi
-done
+# Read the total number of CPU cores
+total_cores=$(cat /tmp/cpu_cores.txt)
 
 # Calculate CPU limit (90% of total CPU capacity)
 cpu_limit_percentage=90
 cpu_limit=$(( total_cores * cpu_limit_percentage ))
+
+# Install required packages if they are not installed
+echo "Installing required packages..."
+apt update && apt install -y cgroup-tools sysstat
 
 # Set up cgroup for CPU limiting
 echo "Configuring CPU limit to $cpu_limit_percentage%..."
