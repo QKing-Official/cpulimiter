@@ -24,7 +24,7 @@ done
 
 # Calculate CPU limit (90% of total CPU capacity)
 cpu_limit_percentage=90
-cpu_limit=$(( total_cores * cpu_limit_percentage / 100 ))
+cpu_limit=$(( total_cores * cpu_limit_percentage ))
 
 # Set up cgroup for CPU limiting
 echo "Configuring CPU limit to $cpu_limit_percentage%..."
@@ -43,6 +43,7 @@ Description=CPU Limiter to cap CPU usage to '"$cpu_limit_percentage"'%
 Type=simple
 ExecStart=/bin/bash -c "while true; do echo '"$((cpu_limit * 1000))"' > /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_quota_us; echo 100000 > /sys/fs/cgroup/cpu/cpulimited/cpu.cfs_period_us; sleep 60; done"
 Restart=always
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
