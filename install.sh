@@ -24,12 +24,17 @@ cpu_limit=$(( total_cores * cpu_limit_percentage ))
 
 # Set up cgroup for CPU limiting
 echo "Configuring CPU limit to $cpu_limit_percentage%..."
-sudo cgcreate -g cpu:/cpulimited
 
-# Verify the cgroup was created successfully
-if [ ! -d /sys/fs/cgroup/cpu/cpulimited ]; then
-    echo "Failed to create cgroup. Exiting."
-    exit 1
+# Attempt to create the CPU cgroup
+if ! sudo cgcreate -a $(whoami) -g cpu:/cpulimited; then
+    echo "cgcreate failed, trying to manually create the CPU cgroup directory..."
+    sudo mkdir -p /sys/fs/cgroup/cpu/cpulimited
+    sudo chmod -R 755 /sys/fs/cgroup/cpu/cpulimited
+
+    if [ ! -d /sys/fs/cgroup/cpu/cpulimited ]; then
+        echo "Failed to create cgroup. Exiting."
+        exit 1
+    fi
 fi
 
 # Write CPU limits
