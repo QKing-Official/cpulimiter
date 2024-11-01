@@ -1,13 +1,23 @@
 #!/bin/bash
 
-# Check if cpulimit is installed
+# Check if cpulimit is installed; install if missing
 if ! command -v cpulimit &>/dev/null; then
-    echo "cpulimit is not installed. Install it with:"
-    echo "sudo apt install cpulimit"
-    exit 1
+    echo "cpulimit is not installed. Installing it now..."
+    
+    # Determine the package manager and install cpulimit
+    if command -v apt &>/dev/null; then
+        sudo apt update && sudo apt install -y cpulimit
+    elif command -v yum &>/dev/null; then
+        sudo yum install -y epel-release && sudo yum install -y cpulimit
+    else
+        echo "Error: Unable to install cpulimit. Unsupported package manager."
+        exit 1
+    fi
+else
+    echo "cpulimit is already installed."
 fi
 
-# Prompt the user for a CPU limit
+# Prompt the user for a CPU limit percentage
 read -p "Enter the maximum CPU usage percentage (e.g., 50 for 50%): " cpu_limit
 
 # Find the main process (usually systemd or init) and limit its CPU usage
